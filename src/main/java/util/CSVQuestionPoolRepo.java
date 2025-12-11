@@ -1,9 +1,9 @@
 package util;
 
-//import model.ImageQuestion;
-//import model.Question;
-//import model.QuestionPool;
-//import model.TextQuestion;
+import Model.ImageQuestion;
+import Model.Question;
+import Model.QuestionPool;
+import Model.TextQuestion;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -33,7 +33,6 @@ public class CSVQuestionPoolRepo implements QuestionPoolRepo {
         this.charset = charset;
     }
 
-    /*
     @Override
     public QuestionPool load(File file) throws StorageException, CsvFormatException {
         List<Question> questions = new ArrayList<>();
@@ -171,5 +170,4 @@ public class CSVQuestionPoolRepo implements QuestionPoolRepo {
         if (esc) sb.append('\\');
         return sb.toString();
     }
-    */
 }

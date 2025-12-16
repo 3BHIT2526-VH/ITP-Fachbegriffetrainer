@@ -28,4 +28,7 @@ public abstract class Question {
 
     public abstract void validate();
 
+    public String getText() {
+        return "The answer to the promnt \"" + prompt + "\" is " + answer;
+    }
 }

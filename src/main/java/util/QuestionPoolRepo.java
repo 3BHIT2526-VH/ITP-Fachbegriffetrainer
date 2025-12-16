@@ -1,9 +1,6 @@
 package util;
 
-//import model.QuestionPool;
-
 import Model.QuestionPool;
-
 import java.io.File;
 
 public interface QuestionPoolRepo {

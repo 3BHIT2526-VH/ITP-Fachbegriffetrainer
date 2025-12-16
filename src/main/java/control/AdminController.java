@@ -3,6 +3,7 @@ package control;
 import Model.Question;
 import Model.QuestionPool;
 import util.QuestionPoolRepo;
+import util.StorageException;
 
 import java.util.UUID;
 
@@ -14,11 +15,11 @@ public class AdminController {
         this.poolRepo = poolRepo;
     }
 
-    public QuestionPool loadFile(java.io.File file) {
+    public QuestionPool loadFile(java.io.File file) throws StorageException {
         return poolRepo.load(file);
     }
 
-    public void save(QuestionPool pool, java.io.File file) {
+    public void save(QuestionPool pool, java.io.File file) throws StorageException {
         poolRepo.save(pool, file);
     }
 

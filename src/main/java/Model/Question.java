@@ -1,0 +1,34 @@
+package Model;
+
+import java.util.UUID;
+
+public abstract class Question {
+
+    protected final UUID id;
+    protected final String prompt;
+    protected final String answer;
+
+    protected Question(UUID id, String prompt, String answer) {
+        this.id = id;
+        this.prompt = prompt;
+        this.answer = answer;
+    }
+
+    public String getPrompt() {
+        return prompt;
+    }
+
+    public String getAnswer() {
+        return answer;
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public abstract void validate();
+
+    public String getText() {
+        return "The answer to the promnt \"" + prompt + "\" is " + answer;
+    }
+}

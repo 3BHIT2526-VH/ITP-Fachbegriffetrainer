@@ -4,6 +4,7 @@ import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.util.List;
 
 public class AdminDialog extends JDialog {
 
@@ -24,6 +25,13 @@ public class AdminDialog extends JDialog {
     // Vorschau
     private JLabel previewLabel;
 
+    // Statusanzeige (NEUE KOMPONENTE, die die View selbst besitzt und verwaltet)
+    private JLabel statusMessageLabel;
+
+    /**
+     * Korrigierter Konstruktor gemäß UML-Anforderung (Owner-Parameter).
+     * @param owner Der Frame, der dieser Dialog gehört.
+     */
     public AdminDialog(Frame owner) {
         super(owner, "Verwaltung - Fragenpools", true); // Modal
         setSize(1000, 700);
@@ -31,10 +39,19 @@ public class AdminDialog extends JDialog {
         buildUI();
     }
 
-    public void showDialog() {
+    // UML: + show(): void
+    public void show() {
+        // 1. Packen, um sicherzustellen, dass die Komponenten die korrekte Größe haben
+        this.pack();
+
+        // 2. Erneut zentrieren (wichtig, falls der Owner seit dem Konstruktor bewegt wurde)
+        this.setLocationRelativeTo(this.getOwner());
+
+        // 3. Sichtbar machen (blockiert den EDT, da modal)
         this.setVisible(true);
     }
 
+    // UML: + buildUI(): void
     public void buildUI() {
         setLayout(new BorderLayout());
 
@@ -51,7 +68,7 @@ public class AdminDialog extends JDialog {
         JPanel poolPanel = new JPanel(new BorderLayout());
         poolPanel.setBorder(new TitledBorder("Fragenpools"));
 
-        poolList = new JList<>(); // Controller muss Model setzen
+        poolList = new JList<>();
         poolPanel.add(new JScrollPane(poolList), BorderLayout.CENTER);
 
         JPanel poolBtnPanel = new JPanel(new GridLayout(2, 2, 5, 5));
@@ -65,7 +82,7 @@ public class AdminDialog extends JDialog {
         poolBtnPanel.add(btnDeletePool);
         poolPanel.add(poolBtnPanel, BorderLayout.SOUTH);
 
-        // --- Rechte Seite: Fragen & Details ---
+        // --- Rechte Seite: Fragen & Details (Zentrum) ---
         JPanel rightPanel = new JPanel(new BorderLayout());
 
         // Fragen Tabelle
@@ -80,6 +97,36 @@ public class AdminDialog extends JDialog {
         detailPanel.setPreferredSize(new Dimension(0, 200));
 
         // Formular
+        JPanel formPanel = createFormPanel(); // Auslagerung der Formularerstellung
+
+        // Vorschau Panel
+        previewLabel = new JLabel("Kein Bild", SwingConstants.CENTER);
+        previewLabel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+        previewLabel.setPreferredSize(new Dimension(150, 150));
+
+        detailPanel.add(formPanel, BorderLayout.CENTER);
+        detailPanel.add(previewLabel, BorderLayout.EAST);
+
+        rightPanel.add(detailPanel, BorderLayout.SOUTH);
+
+        // SplitPane zusammenfügen
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, poolPanel, rightPanel);
+        splitPane.setDividerLocation(250);
+        add(splitPane, BorderLayout.CENTER);
+
+        // --- Statusanzeige (Unten) ---
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+
+        statusMessageLabel = new JLabel("Bereit.");
+        statusMessageLabel.setForeground(Color.BLACK);
+        bottomPanel.add(statusMessageLabel, BorderLayout.CENTER);
+
+        add(bottomPanel, BorderLayout.SOUTH); // Hinzufügen zum Hauptlayout (KORRIGIERT)
+    }
+
+    // Hilfsmethode zur Erstellung des Formulars (ausgelagert zur Übersichtlichkeit)
+    private JPanel createFormPanel() {
         JPanel formPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
@@ -101,31 +148,63 @@ public class AdminDialog extends JDialog {
         qBtnPanel.add(btnDeleteQuestion);
 
         gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2; formPanel.add(qBtnPanel, gbc);
-
-        // Vorschau Panel
-        previewLabel = new JLabel("Kein Bild", SwingConstants.CENTER);
-        previewLabel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-        previewLabel.setPreferredSize(new Dimension(150, 150));
-
-        detailPanel.add(formPanel, BorderLayout.CENTER);
-        detailPanel.add(previewLabel, BorderLayout.EAST);
-
-        rightPanel.add(detailPanel, BorderLayout.SOUTH);
-
-        // SplitPane zusammenfügen
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, poolPanel, rightPanel);
-        splitPane.setDividerLocation(250);
-        add(splitPane, BorderLayout.CENTER);
+        return formPanel;
     }
 
-    // Getter
+
+    // --- Statusanzeige Methoden (vom Controller aufgerufen) ---
+
+    /**
+     * Zeigt eine positive Statusmeldung (z.B. nach erfolgreichem Speichern).
+     * @param message Die anzuzeigende Nachricht.
+     */
+    public void showStatusMessage(String message) {
+        statusMessageLabel.setText("Status: " + message);
+        statusMessageLabel.setForeground(new Color(0, 150, 0)); // Dunkelgrün
+    }
+
+    /**
+     * Zeigt eine Fehlermeldung (z.B. bei Speicher- oder Validierungsfehlern).
+     * @param message Die anzuzeigende Fehlernachricht.
+     */
+    public void showErrorMessage(String message) {
+        statusMessageLabel.setText("FEHLER: " + message);
+        statusMessageLabel.setForeground(Color.RED);
+    }
+
+    // Statusanzeige (NEUE KOMPONENTE, die die View selbst besitzt und verwaltet)
+
+    // --- Getter-Methoden (ERGÄNZT UM TEXTFELDER) ---
     public JList<String> getPoolList() { return poolList; }
     public JTable getQuestionTable() { return questionTable; }
     public DefaultTableModel getTableModel() { return tableModel; }
+
+    // Pool-Buttons
     public JButton getBtnCreatePool() { return btnCreatePool; }
+    public JButton getBtnRenamePool() { return btnRenamePool; }
+    public JButton getBtnDuplicatePool() { return btnDuplicatePool; }
     public JButton getBtnDeletePool() { return btnDeletePool; }
+
+    // Fragen-Buttons
+    public JButton getBtnAddQuestion() { return btnAddQuestion; }
+    public JButton getBtnEditQuestion() { return btnEditQuestion; }
+    public JButton getBtnDeleteQuestion() { return btnDeleteQuestion; }
+
+    // Import/Export Buttons
     public JButton getBtnImport() { return btnImport; }
     public JButton getBtnExport() { return btnExport; }
+
     public JLabel getPreviewLabel() { return previewLabel; }
-    // ... weitere Getter für alle Buttons/Felder
+
+    /**
+     * Getter für das Textfeld der Frage.
+     * Wird vom Controller benötigt,  Eingaben auszulesen.
+     */
+    public JTextField getTxtQuestionText() { return txtQuestionText; }
+
+    /**
+     * Getter für das Textfeld der Bild-URL.
+     * Wird vom Controller benötigt, um Eingaben auszulesen.
+     */
+    public JTextField getTxtImageUrl() { return txtImageUrl; }
 }

@@ -1,43 +1,43 @@
 package Model;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public class QuestionPool {
 
-    private final String name;
-    private final List<Question> questions;
+    private String name;
+    private List<Question> questions;
 
-    public QuestionPool(String name) {
+    public QuestionPool(String name, List<Question> questions) {
         this.name = name;
         this.questions = new ArrayList<>();
     }
 
-    public QuestionPool(String name, List<Question> questions) {
-        this.name = name;
-        this.questions = questions;
+    // UML: add(Question)
+    public void add(Question question) {
+        this.questions.add(question);
     }
 
-    public void add(Question q) {
-        questions.add(q);
+    // UML: remove(UUID)
+    public void remove(UUID questionId) {
+        this.questions.removeIf(q -> q.getId().equals(questionId));
     }
 
-    public void remove(UUID id) {
-        questions.removeIf(q -> id.equals(q.id));
+    // UML: findBy(UUID): Optional<Question>
+    public Optional<Question> findBy(UUID questionId) {
+        return questions.stream()
+                .filter(q -> q.getId().equals(questionId))
+                .findFirst();
     }
 
-    public Optional<Question> findById(UUID id) {
-        return questions.stream().filter(q -> id.equals(q.id)).findFirst();
-    }
-
+    // UML: size(): int
     public int size() {
         return questions.size();
     }
 
-    public List<Question> getQuestions() {
-        return Collections.unmodifiableList(questions);
-    }
-
-    public String getName() {
-        return name;
-    }
+    // Getter
+    public List<Question> getQuestions() { return questions; }
+    public String getName() { return name; }
 }

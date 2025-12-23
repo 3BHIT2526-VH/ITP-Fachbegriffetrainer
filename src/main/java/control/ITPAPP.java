@@ -2,9 +2,20 @@ package control;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 import java.awt.event.ActionEvent;
-import view.*;
+import java.util.ArrayList;
+import java.util.Optional;
 
+import view.*;
+import util.*;
+import Model.*;
+
+/**
+ * Die Hauptanwendungsklasse, die das System initialisiert und die Controller,
+ * Views und Repositories zusammenfügt (Bootstrap).
+ * Entspricht dem ITPAPP im UML-Diagramm.
+ */
 public class ITPAPP {
 
     // Referenzen auf die Views (Dialoge)
@@ -12,22 +23,25 @@ public class ITPAPP {
     private QuizDialog quizDialog;
     private GameDialog gameDialog;
 
-    // Referenzen auf die Controller
+    // Referenzen auf die Controller (Interfaces oder Klassen)
     private AdminController adminController;
     private QuizController quizController;
     private GameController gameController;
 
-    // Referenzen auf die Repositories (Daten)
+    // Referenzen auf die Repositories (Interfaces, da keine Impl-Klassen im UML)
     private QuestionPoolRepo poolRepo;
     private StatisticsRepo statsRepo;
 
-    // Das Hauptfenster (hier direkt als JFrame Instanz)
+    // Das Hauptfenster
     private JFrame mainWindow;
 
     public static void main(String[] args) {
         // Sicherstellen, dass GUI im Event-Dispatch-Thread läuft
         SwingUtilities.invokeLater(() -> {
             try {
+                // Erstelle den Datenordner, falls er nicht existiert (Hilfsfunktion)
+                new java.io.File("data").mkdirs();
+
                 new ITPAPP().start();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -36,14 +50,27 @@ public class ITPAPP {
         });
     }
 
-    /**
-     * Initialisiert die Anwendung, verknüpft MVC-Komponenten und zeigt das Hauptmenü.
-     */
     public void start() {
-        // 1. Repositories initialisieren (Datenhaltung)
-        // Hinweis: Hier werden konkrete Implementierungen instanziiert
-        poolRepo = new QuestionPoolRepoImpl(); // Mock/Impl
-        statsRepo = new StatisticsRepoImpl();   // Mock/Impl
+        // HINWEIS: Da keine Impl-Klassen im UML existieren, müssen wir hier
+        // eine "Fake"-Initialisierung durchführen, um Kompilierfehler zu vermeiden.
+
+        // 1. Repositories initialisieren (Anonyme Klassen-Stubs)
+
+        poolRepo = new QuestionPoolRepo() {
+            @Override
+            public QuestionPool load(File file) {
+                // KORREKTUR: Muss den Zwei-Argumente-Konstruktor verwenden
+                return new QuestionPool("Mock Load Pool", new ArrayList<>());
+            }
+            @Override
+            public void save(QuestionPool p, File f) throws StorageException { }
+        };
+        statsRepo = new StatisticsRepo() {
+            @Override
+            public Optional<QuizStatistics> load(File file) throws StorageException { return Optional.empty(); }
+            @Override
+            public void save(QuizStatistics s, File f) throws StorageException { }
+        };
 
         // 2. Hauptfenster (Menu) konfigurieren
         mainWindow = new JFrame("ITP-Fachbegriffe-Trainer");
@@ -70,19 +97,16 @@ public class ITPAPP {
      * Erstellt die Controller und injiziert die Abhängigkeiten gemäß UML.
      */
     private void initControllers() {
-        // AdminController steuert den AdminDialog und nutzt das PoolRepo
+        // Da wir AdminController als Klasse im UML haben, muss er instanziiert werden
         adminController = new AdminController(poolRepo, adminDialog);
 
-        // QuizController steuert den QuizDialog, nutzt StatsRepo und PoolRepo (für Fragen)
+        // Instanziierung der anderen Controller, Annahme: sie existieren als Klassen
         quizController = new QuizController(statsRepo, quizDialog, poolRepo);
-
-        // GameController steuert den GameDialog
-        // (Im Diagramm hat er keine Repo-Abhängigkeit im Konstruktor, erzeugt aber 'HangmanGame')
         gameController = new GameController(gameDialog, poolRepo);
     }
 
     /**
-     * Baut das UI des Hauptmenüs direkt im JFrame auf.
+     * Baut das UI des Hauptmenüs direkt im JFrame auf und registriert die Listener.
      */
     private void buildMainMenu() {
         JPanel mainPanel = new JPanel(new GridBagLayout());
@@ -118,19 +142,20 @@ public class ITPAPP {
         // --- Event Handling (Navigation) ---
 
         btnAdmin.addActionListener((ActionEvent e) -> {
-            // Optional: Daten neu laden, bevor Dialog aufgeht
-            adminController.refreshData();
-            adminDialog.showDialog();
+            adminController.refreshPoolData();
+            adminDialog.show();
         });
 
         btnQuiz.addActionListener((ActionEvent e) -> {
             quizController.prepareSession();
-            quizDialog.start();
+            // Annahme: QuizDialog hat show()
+            quizDialog.show();
         });
 
         btnGame.addActionListener((ActionEvent e) -> {
             gameController.startNewGame();
-            gameDialog.start();
+            // Annahme: GameDialog hat show()
+            gameDialog.show();
         });
 
         btnExit.addActionListener((ActionEvent e) -> {
@@ -144,29 +169,5 @@ public class ITPAPP {
         btn.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         btn.setFocusPainted(false);
         return btn;
-    }
-
-    // --- Platzhalter für Interfaces/Klassen, damit der Code ohne Errors lesbar ist ---
-    // (Diese existieren in deinem Projekt in separaten Dateien)
-
-    // Repositories
-    interface QuestionPoolRepo {}
-    class QuestionPoolRepoImpl implements QuestionPoolRepo {}
-
-    interface StatisticsRepo {}
-    class StatisticsRepoImpl implements StatisticsRepo {}
-
-    // Controller Stubs (zum Verständnis der Aufrufe)
-    class AdminController {
-        public AdminController(QuestionPoolRepo r, AdminDialog v) {}
-        public void refreshData() {}
-    }
-    class QuizController {
-        public QuizController(StatisticsRepo s, QuizDialog v, QuestionPoolRepo p) {}
-        public void prepareSession() {}
-    }
-    class GameController {
-        public GameController(GameDialog v, QuestionPoolRepo p) {}
-        public void startNewGame() {}
     }
 }

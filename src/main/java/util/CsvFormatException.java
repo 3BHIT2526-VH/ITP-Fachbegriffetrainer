@@ -1,5 +1,6 @@
 package util;
 
-public class CsvFormatException extends StorageException {
-
+/** Ausnahme für Fehler im CSV-Format. */
+public class CsvFormatException extends Exception {
+    public CsvFormatException(String message) { super(message); }
 }

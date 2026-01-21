@@ -1,0 +1,93 @@
+From b20c303b6e6d9e33800d3f83faf473e1f1bd62d4 Mon Sep 17 00:00:00 2001
+From: leddis088 <lkruspel@student.tgm.ac.at>
+Date: Tue, 23 Dec 2025 00:42:45 +0100
+Subject: [PATCH] feat(model): implement Question hierarchy
+
+---
+ src/main/java/model/ImageQuestion.java | 19 ++++++++++++++++++-
+ src/main/java/model/Question.java      | 15 +++++++++++++++
+ src/main/java/model/TextQuestion.java  | 13 ++++++++++++-
+ 3 files changed, 45 insertions(+), 2 deletions(-)
+
+diff --git a/src/main/java/model/ImageQuestion.java b/src/main/java/model/ImageQuestion.java
+index e0f11c2..066b5a5 100644
+--- a/src/main/java/model/ImageQuestion.java
++++ b/src/main/java/model/ImageQuestion.java
+@@ -1,5 +1,22 @@
+ package model;
+ 
+-public class ImageQuestion {
++import java.net.URL;
++import java.util.UUID;
+ 
++public class ImageQuestion extends Question {
++    private URL imageURL;
++
++    public ImageQuestion(UUID id, String prompt, String answer, URL imageURL) {
++        super(id, prompt, answer);
++        this.imageURL = imageURL;
++    }
++
++    public URL getImageUrl() { return imageURL; }
++
++    @Override
++    public void validate() {
++        if (imageURL == null) {
++            throw new RuntimeException("Image URL is required for ImageQuestion");
++        }
++    }
+ }
+\ No newline at end of file
+diff --git a/src/main/java/model/Question.java b/src/main/java/model/Question.java
+index 68fb56c..92bf79b 100644
+--- a/src/main/java/model/Question.java
++++ b/src/main/java/model/Question.java
+@@ -1,6 +1,21 @@
+ package model;
+ 
++import java.util.UUID;
+ 
+ public abstract class Question {
++    protected UUID id;
++    protected String prompt;
++    protected String answer;
+ 
++    protected Question(UUID id, String prompt, String answer) {
++        this.id = id;
++        this.prompt = prompt;
++        this.answer = answer;
++    }
++
++    public String getPrompt() { return prompt; }
++    public String getAnswer() { return answer; }
++    public UUID getId() { return id; }
++
++    public abstract void validate();
+ }
+\ No newline at end of file
+diff --git a/src/main/java/model/TextQuestion.java b/src/main/java/model/TextQuestion.java
+index b8e34c6..de5cad5 100644
+--- a/src/main/java/model/TextQuestion.java
++++ b/src/main/java/model/TextQuestion.java
+@@ -1,5 +1,16 @@
+ package model;
+ 
+-public class TextQuestion{
++import java.util.UUID;
+ 
++public class TextQuestion extends Question {
++    public TextQuestion(UUID id, String prompt, String answer) {
++        super(id, prompt, answer);
++    }
++
++    @Override
++    public void validate() {
++        if (prompt == null || prompt.isBlank() || answer == null || answer.isBlank()) {
++            throw new RuntimeException("TextQuestion components cannot be blank");
++        }
++    }
+ }
+\ No newline at end of file
+-- 
+2.39.1.windows.1
+

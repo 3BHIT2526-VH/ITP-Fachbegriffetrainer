@@ -1,5 +1,4 @@
 package model;
-
 import java.util.UUID;
 
 public class ResultItem {
@@ -8,15 +7,12 @@ public class ResultItem {
     private String userAnswer;
     private String expectedAnswer;
 
-    public ResultItem(UUID questionId, boolean correct, String userAnswer, String expectedAnswer) {
-        this.questionId = questionId;
-        this.correct = correct;
-        this.userAnswer = userAnswer;
-        this.expectedAnswer = expectedAnswer;
+    public ResultItem(UUID id, boolean correct, String user, String expected) {
+        this.questionId = id; this.correct = correct;
+        this.userAnswer = user; this.expectedAnswer = expected;
     }
-
     public boolean isCorrect() { return correct; }
-    public UUID getQuestionId() { return questionId; }
     public String getUserAnswer() { return userAnswer; }
     public String getExpectedAnswer() { return expectedAnswer; }
+    public UUID getQuestionId() { return questionId; }
 }

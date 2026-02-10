@@ -4,9 +4,14 @@ import model.QuestionPool;
 import java.io.File;
 
 public interface QuestionPoolRepo {
-    /** Lädt einen QuestionPool aus einer Datei. */
-    QuestionPool load(File file);
+    /**
+     * @throws StorageException bei Dateizugriffsfehlern
+     * @throws CsvFormatException wenn es Fehler bei der Formatierung gibt
+     */
+    QuestionPool load(File file) throws StorageException, CsvFormatException;
 
-    /** Speichert einen QuestionPool in einer Datei. */
-    void save(QuestionPool pool, File file);
+    /**
+     * @throws StorageException bei Dateizugriffsfehlern
+     */
+    void save(QuestionPool pool, File file) throws StorageException;
 }

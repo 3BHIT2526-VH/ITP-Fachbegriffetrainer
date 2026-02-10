@@ -1,9 +1,5 @@
 package model;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class QuestionPool {
     private String name;
@@ -19,25 +15,16 @@ public class QuestionPool {
         this.questions = questions;
     }
 
-    public void add(Question question) {
-        this.questions.add(question);
-    }
+    public void add(Question q) { questions.add(q); }
+    public void remove(UUID id) { questions.removeIf(q -> q.getId().equals(id)); }
 
-    public void remove(UUID id) {
-        questions.removeIf(q -> q.getId().equals(id));
-    }
+    public List<Question> getQuestions() { return questions; }
+    public int size() { return questions.size(); }
+
+    public void setName(String name) { this.name = name; }
+    public String getName() { return name; }
 
     public Optional<Question> findById(UUID id) {
-        return questions.stream()
-                .filter(q -> q.getId().equals(id))
-                .findFirst();
-    }
-
-    public int size() {
-        return questions.size();
-    }
-
-    public List<Question> getQuestions() {
-        return questions;
+        return questions.stream().filter(q -> q.getId().equals(id)).findFirst();
     }
 }

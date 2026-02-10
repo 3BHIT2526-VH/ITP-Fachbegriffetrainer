@@ -1,4 +1,5 @@
 package model;
+import util.ValidationException;
 
 import java.util.UUID;
 
@@ -10,7 +11,7 @@ public class TextQuestion extends Question {
     @Override
     public void validate() {
         if (prompt == null || prompt.isBlank() || answer == null || answer.isBlank()) {
-            throw new RuntimeException("TextQuestion components cannot be blank");
+            throw new ValidationException("Invalid TextQuestion");
         }
     }
 }

@@ -1,22 +1,28 @@
 package model;
 
-import java.util.List;
-
 public class QuizStatistics {
-    private int correctCount;
-    private int wrongCount;
-    private int accuracy; // In percentage
+    private int correct;
+    private int total;
 
-    public QuizStatistics(int correctCount, int wrongCount, double accuracy) {
-        this.correctCount = correctCount;
-        this.wrongCount = wrongCount;
-        this.accuracy = (int) accuracy;
+    public QuizStatistics(int correct, int total) {
+        this.correct = correct;
+        this.total = total;
     }
 
-    public static QuizStatistics from(List<ResultItem> results) {
-        int correct = (int) results.stream().filter(ResultItem::isCorrect).count();
-        int wrong = results.size() - correct;
-        double acc = results.isEmpty() ? 0 : (double) correct / results.size() * 100;
-        return new QuizStatistics(correct, wrong, acc);
+    public int getCorrectCount() {
+        return correct;
+    }
+
+    public int getTotalCount() {
+        return total;
+    }
+
+    public int getSuccessRate() {
+        if (total == 0) return 0;
+        return (int) (((double) correct / total) * 100);
+    }
+
+    public String getSummary() {
+        return "Score: " + correct + "/" + total + "\nErfolgsquote: " + getSuccessRate() + "%";
     }
 }

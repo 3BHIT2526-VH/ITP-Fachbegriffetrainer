@@ -1,4 +1,4 @@
-package control;
+package controller;
 
 import model.HangmanGame;
 import util.HangmanVisualizer;
@@ -6,10 +6,8 @@ import model.Question;
 import model.QuestionPool;
 import view.GameDialog;
 import javax.swing.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 public class GameController {
     private GameDialog view;
